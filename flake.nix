@@ -21,8 +21,8 @@
         system,
         ...
       }: {
-        packages.dockerMultiArch = pkgs.writeShellApplication {
-          name = ''dockerMultiArch'';
+        packages.dockerMultiArchBuild = pkgs.writeShellApplication {
+          name = ''dockerMultiArchBuild'';
           runtimeInputs = [pkgs.docker];
           text = ./builder.sh;
         };
@@ -35,7 +35,7 @@
 
           packages = builtins.attrValues {
             inherit (pkgs) docker;
-            inherit (self'.packages) dockerMultiArch;
+            inherit (self'.packages) dockerMultiArchBuild;
           };
           pre-commit.hooks.shellcheck.enable = true;
           pre-commit.hooks.shellcheck.types_or = ["shell"];
