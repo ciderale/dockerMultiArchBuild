@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
-PROJECT=${PROJECT:-myproject}
-IMG=${IMG:-/myapp}
+#REGISTRY & IMG must be defined
+#REGISTRY=${REGISTRY:-localhost:5000}
+#IMG=${IMG:-myproject/myapp}
 VERSION=${VERSION:-latest}
-
-REGISTRY=localhost:5000
 ARCHS=(arm64 amd64)
 
 ## Internal variables
-QUALIFIED=$REGISTRY/$PROJECT/$IMG
+QUALIFIED=$REGISTRY/$IMG
 MANIFEST=$QUALIFIED:$VERSION
 
 TAGS=()

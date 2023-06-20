@@ -21,30 +21,32 @@
         system,
         ...
       }: {
-        packages.dockerMultiArchBuild = pkgs.writeShellApplication {
+        packages.default = pkgs.writeShellApplication {
           name = ''dockerMultiArchBuild'';
           runtimeInputs = [pkgs.docker];
           text = ./builder.sh;
         };
-        devenv.shells.default = {lib, ...}: {
+        devenv.shells.default = {lib, ...}: let
+          port = "4000";
+        in {
           name = "my-project";
-          env.PROJECT = "myp";
-          env.IMG = "app";
+          env.IMG = "myp/app";
           env.VERSION = inputs.self.rev or "latest";
+          env.REGISTRY = "localhost:${port}";
           containers = lib.mkForce {};
 
           packages = builtins.attrValues {
             inherit (pkgs) docker;
-            inherit (self'.packages) dockerMultiArchBuild;
+            inherit (self'.packages) default;
           };
           pre-commit.hooks.shellcheck.enable = true;
           pre-commit.hooks.shellcheck.types_or = ["shell"];
 
-          scripts.registryStart.exec = ''docker run -d -p 5000:5000 --name registry registry:2'';
+          scripts.registryStart.exec = ''docker run -d -p ${port}:5000 --name registry registry:2'';
           scripts.registryStop.exec = ''docker rm --force registry'';
 
-          scripts.runArm.exec = ''docker run -ti --platform linux/arm64 localhost:5000/$PROJECT/$IMG:$VERSION'';
-          scripts.runAmd.exec = ''docker run -ti --platform linux/amd64 localhost:5000/$PROJECT/$IMG:$VERSION'';
+          scripts.runArm.exec = ''docker run -ti --platform linux/arm64 $REGISTRY/$IMG:$VERSION'';
+          scripts.runAmd.exec = ''docker run -ti --platform linux/amd64 $REGISTRY/$IMG:$VERSION'';
 
           enterShell = ''echo ${inputs.self.rev or "dirty"}'';
         };
