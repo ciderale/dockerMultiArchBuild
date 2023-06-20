@@ -40,6 +40,9 @@
             inherit (pkgs) buildah skopeo;
           };
 
+          scripts.registryStart.exec = ''docker run -d -p 5000:5000 --name registry registry:2'';
+          scripts.registryStop.exec = ''docker rm --force registry'';
+
           enterShell = ''
             hello
           '';
