@@ -22,9 +22,21 @@
         ...
       }: {
         packages.default = pkgs.writeShellApplication {
+          name = ''dockerMultiArchBuildAndPublish'';
+          text = ''
+            ${self'.packages.build}/bin/dockerMultiArchBuild
+            ${self'.packages.publish}/bin/dockerMultiArchPublish
+          '';
+        };
+        packages.build = pkgs.writeShellApplication {
           name = ''dockerMultiArchBuild'';
           runtimeInputs = [pkgs.docker];
-          text = ./builder.sh;
+          text = ./multi-arch-build.sh;
+        };
+        packages.publish = pkgs.writeShellApplication {
+          name = ''dockerMultiArchPublish'';
+          runtimeInputs = [pkgs.docker];
+          text = ./multi-arch-publish.sh;
         };
         devenv.shells.default = {lib, ...}: let
           port = "4000";
@@ -37,7 +49,7 @@
 
           packages = builtins.attrValues {
             inherit (pkgs) docker;
-            inherit (self'.packages) default;
+            inherit (self'.packages) default build publish;
           };
           pre-commit.hooks.shellcheck.enable = true;
           pre-commit.hooks.shellcheck.types_or = ["shell"];
