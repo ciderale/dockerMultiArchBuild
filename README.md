@@ -4,8 +4,8 @@ This repository is a little proof-of-concept script to build multi-architecture
 docker images. The script can be run as follows
 
 ```
-REGISTRY=localhost:4000 IMG=myp/app nix run github:ciderale/dockerMultiArchBuild
-```
+IMG=myp/app VERSION=v1 nix run github:ciderale/dockerMultiArchBuild
+IMG=myp/app VERSION=v1 REGISTRY=localhost:4000 nix run github:ciderale/dockerMultiArchPublish
 
 and makes the following assumptions:
 
@@ -35,10 +35,10 @@ direnv allow      # or nix develop . --impure
 The folling instructions, build, push, and runs the images:
 ```
 # assume a local Dockerfile
-dockerMultiArchBuild  # builds the images and pushes to local registry
-runArm                # should display arm architecture
-runAmd                # should display amd architecture
-registryStop          # starts a local docker registry
+dockerMultiArchBuildAndPublish  # builds the images and pushes to local registry
+runArm                          # should display arm architecture
+runAmd                         	# should display amd architecture
+registryStop                    # starts a local docker registry
 exit
 ```
 
