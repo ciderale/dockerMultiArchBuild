@@ -21,13 +21,6 @@
         system,
         ...
       }: {
-        packages.default = pkgs.writeShellApplication {
-          name = ''dockerMultiArchBuildAndPublish'';
-          text = ''
-            ${self'.packages.build}/bin/dockerMultiArchBuild
-            ${self'.packages.publish}/bin/dockerMultiArchPublish
-          '';
-        };
         packages.build = pkgs.writeShellApplication {
           name = ''dockerMultiArchBuild'';
           runtimeInputs = [pkgs.docker];
@@ -49,7 +42,7 @@
 
           packages = builtins.attrValues {
             inherit (pkgs) docker;
-            inherit (self'.packages) default build publish;
+            inherit (self'.packages) build publish;
           };
           pre-commit.hooks.shellcheck.enable = true;
           pre-commit.hooks.shellcheck.types_or = ["shell"];
@@ -59,6 +52,12 @@
 
           scripts.runArm.exec = ''docker run -ti --platform linux/arm64 $REGISTRY/$IMG:$VERSION'';
           scripts.runAmd.exec = ''docker run -ti --platform linux/amd64 $REGISTRY/$IMG:$VERSION'';
+
+          scripts.buildAndPublish.exec = ''
+            echo "Build $IMG:$VERSION =publish=> $REGISTRY"
+            dockerMultiArchBuild
+            dockerMultiArchPublish
+          '';
 
           enterShell = ''echo ${inputs.self.rev or "dirty"}'';
         };

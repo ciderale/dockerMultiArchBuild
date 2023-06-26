@@ -5,9 +5,11 @@ set -eu -o pipefail
 #REGISTRY=${REGISTRY:-localhost:5000}
 #VERSION=${VERSION:-latest}
 OPTS="--insecure"
+PATTERN="reference=$IMG-*:$VERSION"
+MANIFEST=$REGISTRY/$IMG:$VERSION
 
 echo "###############"
-TAGS=$(docker images --filter "reference=$IMG-*:$VERSION" --format '{{.Repository}}:{{.Tag}}' | xargs)
+TAGS=$(docker images --filter "$PATTERN" --format '{{.Repository}}:{{.Tag}}' | xargs)
 echo "### Re-Tag and Push images: $TAGS"
 QTAGS=()
 for tag in $TAGS; do
@@ -17,7 +19,6 @@ for tag in $TAGS; do
   QTAGS+=("$qtag")
 done
 
-MANIFEST=$REGISTRY/$IMG:$VERSION
 echo "###############"
 echo "### Building manifest $MANIFEST"
 docker manifest create $OPTS "$MANIFEST" "${QTAGS[@]}"
